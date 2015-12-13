@@ -1,0 +1,24 @@
+<html>
+<head>
+  <title>Connect More</title>
+  <link rel="stylesheet" type="text/css" href="/static/game.css">
+</head>
+<body>
+  <div id="create">
+    Create a new game with
+    <input type="text" id="numPlayers" size="2" value="2"/>
+    (2-6) players.
+    <input type="button" value="Create Game!" onclick="createGame($('#numPlayers').val())"/>
+    <br /><br /><br />
+  </div>
+  <span id="board">
+    Please create a new game!
+  </span>
+  <span id="score">
+    No score to display...
+  </span>
+
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="/static/game.js"></script>
+
+</body>
