@@ -10,18 +10,14 @@ class TestGameLogic(unittest.TestCase):
         pass
 
     def test_create_game_invalid_input(self):
-        """
-        It should throw an error if the number of players is < 2 or > 6
-        """
+        """It should throw an error if the number of players is < 2 or > 6."""
         test_nums = (0, 1, 7)
         for num in test_nums:
             self.assertRaises(ValueError, gl.ConnectMore, num)
 
     def test_create_game(self):
-        """
-        It should create a game with a board size appropriate for the
-        number of players specified
-        """
+        """It should create a game with a board size appropriate for the number of players specified."""
+
         num_players = [2, 3, 4, 5, 6]
         widths = [6, 9, 9, 10, 12]
         heights = [6, 6, 8, 9, 9]
@@ -42,8 +38,8 @@ class TestGameLogic(unittest.TestCase):
             self.assertEqual(None, game.play(game.width))
 
     def test_play(self):
-        """
-        It should update the game state as follows:
+        """It should update the game state as follows:
+
         1. place the current player's token in the first empty row of the column
         2. update the number of empty squares remaining
         3. update the current player to the next player
@@ -71,9 +67,7 @@ class TestGameLogic(unittest.TestCase):
         self.assertEqual([1, 1], game.scores)
 
     def test_play_full_column(self):
-        """
-        it should throw an error if playing in a column that's already full
-        """
+        """It should throw an error if playing in a column that's already full."""
         game = gl.ConnectMore(2)
         game.play(1)
         game.play(1)
@@ -85,9 +79,8 @@ class TestGameLogic(unittest.TestCase):
         self.assertRaises(gl.FullColumnError, game.play, 1)
 
     def test_play_update_scores(self):
-        """
-        it should update the score of a game based on the length of token chain
-        created by the last token
+        """It should update the score of a game based on the length of token chain
+        created by the last token.
 
         NOTE: any token can create a chain by either extending an existing chain
         (which can be as short as 1), or joining two previous chains. In either
@@ -125,9 +118,7 @@ class TestGameLogic(unittest.TestCase):
         self.assertEqual([13, 8], game.scores)
 
     def test_game_over(self):
-        """
-        it should throw a GameOverError when all squares are full
-        """
+        """It should throw a GameOverError when all squares are full."""
         game = gl.ConnectMore(4)
 
         for row in list(range(game.height)):
@@ -148,9 +139,7 @@ class TestGameLogic(unittest.TestCase):
         self.assertEqual(expected_scores, game.scores)
 
     def test_get_leaders(self):
-        """
-        it should return a list of the player(s) with the top score
-        """
+        """It should return a list of the player(s) with the top score."""
         game = gl.ConnectMore(6)
         test_scores = [
             [5, 3],
@@ -165,6 +154,70 @@ class TestGameLogic(unittest.TestCase):
             game.scores = test
             result = game.get_leaders()
             self.assertEqual(expected_leaders[index], result)
+
+    def test_eq(self):
+        """It should return true if all the state values of 2 games is equal."""
+        game1 = gl.ConnectMore(2)
+        game2 = gl.ConnectMore(2)
+        self.assertEqual(game1, game2)
+        game1.play(1)
+        self.assertNotEqual(game1, game2)
+        game2.play(1)
+        self.assertEqual(game1, game2)
+
+    def test_clone(self):
+        """It should create a deep copy of the entire game."""
+        game1 = gl.ConnectMore(2)
+        game1.play(1)
+        game2 = game1.clone()
+        game2.play(2)
+        self.assertNotEqual(game1, game2)
+        game1.play(2)
+        self.assertEqual(game1, game2)
+
+    def test_undo_nothing(self):
+        """It should do nothing if there's nothing to undo."""
+        game = gl.ConnectMore(2)
+        game.undo()
+        self.assertTrue(True)
+
+    def test_undo(self):
+        """It should restore the game to the state it was in before the last play."""
+
+        # Create a game board with an interesting mix of chains to test undos.
+        plays = [1, 1,
+                1, 1,
+                1, 2,
+                2, 2,
+                2, 2,
+                1, 2,
+                3, 3,
+                5, 4,
+                5, 6,
+                4, 4,
+                4, 4,
+                4, 6,
+                5, 6,
+                6, 5,
+                5, 6,
+                6, 5,
+                3, 3,
+                3, 3
+                ]
+
+        previous_states = []
+        game = gl.ConnectMore(2)
+
+        for i, col in enumerate(plays):
+            previous_states.append(game.clone())
+            game.play(col)
+            self.assertNotEqual(previous_states[i], game)
+
+
+        for i, col in enumerate(plays):
+            game.undo()
+            self.assertEqual(previous_states[-1], game)
+            previous_states.pop()
 
 if __name__ == '__main__':
     unittest.main()

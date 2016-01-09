@@ -20,13 +20,17 @@ def run():
 
         try:
             prompt = "\nPlayer #" + str(game.current_player) + \
-                " - please enter the column number to play in: "
-            col = int(input(prompt))
+                " - please enter the column number to play in (u to undo): "
+            input_move = input(prompt)
 
-            if 1 <= col <= game.width:
-                game.play(col)
+            if input_move.lower() == "u":
+                game.undo()
             else:
-                print("invalid column #")
+                col = int(input_move)
+                if 1 <= col <= game.width:
+                    game.play(col)
+                else:
+                    print("invalid column #")
 
         except gl.FullColumnError:
             print("Column Full - please choose another!")
