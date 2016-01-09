@@ -4,8 +4,11 @@ import copy
 # Use a global variable to store copies of the previous state after each play.
 #
 # Note that this isn't a good idea - you couldn't use this on a real server
-# to host multiple games for instance. But I reverted to this because using
-# an instance variable was equally bad (or worse). Each call to play does:
+# to host multiple games for instance. It's also messed up the state of my
+# unit tests because I do sometimes do multiple asserts in a test.
+#
+# I reverted to this for now because using an instance variable was equally bad
+# (or worse). Each call to play does:
 #   1. clone the current instance
 #   2. store the clone in history (makes 'undo' really simple to implement)
 #
@@ -88,8 +91,9 @@ class ConnectMore:
 
     def undo(self):
         """Reverts the game back to its prior state before the last play."""
-        self.__dict__.update(history[-1].__dict__)
-        history.pop()
+        if(len(history) > 0):
+            self.__dict__.update(history[-1].__dict__)
+            history.pop()
 
     def _update_scores(self, row, col):
         """Updates the current score based on the last token played (at row, col).
@@ -196,5 +200,6 @@ class GameOverError(Exception):
     pass
 
 if __name__ == '__main__':
-    game1 = ConnectMore(2)
-    print(game1)
+    game = ConnectMore(2)
+    game.undo()
+    #print(game)

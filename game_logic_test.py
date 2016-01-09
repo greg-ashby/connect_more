@@ -7,7 +7,7 @@ class TestGameLogic(unittest.TestCase):
         pass
 
     def tearDown(self):
-        pass
+        gl.history = [] # have to reset history because it's using a global :(
 
     def test_create_game_invalid_input(self):
         """It should throw an error if the number of players is < 2 or > 6."""
